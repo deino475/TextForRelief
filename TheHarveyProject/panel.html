@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  </head>
+
+  <body>
+    <nav>
+      <div class="nav-wrapper blue darken-1">
+        <a href="#" class="brand-logo">The Harvey Project</a>
+        <a href="#" data-activates="mobile-demo" class="button-collapse"><i class="material-icons">menu</i></a>
+        <ul id="nav-mobile" class="right hide-on-med-and-down">
+          <li><a href = "user-panel.php">User Admin Panel</a></li>
+          <li><a href = "api-set-up-tools.php">API Set Up Tools</a></li>
+          <li><a href = "logout.php">Log Out</a></li>
+          <li><a class = "btn-floating btn modal-trigger" href="#modal1" title = "Add a shelter"><i class="material-icons">add</i></a></li>
+        </ul>
+        <ul class="side-nav" id="mobile-demo">
+          <li><a class = "modal-trigger" href="#modal1">Add a shelter</a></li>
+          <li><a href = "user-panel.php">User Admin Panel</a></li>
+          <li><a href = "api-set-up-tools.php">API Set Up Tools</a></li>
+          <li><a href = "logout.php">Log Out</a></li>
+        </ul>
+      </div>
+    </nav>
+    <table class = "bordered highlight">
+      <thead>
+        <tr>
+          <th>Name of the Organization</th>
+          <th>Street Name</th>
+          <th>City</th>
+          <th>State</th>
+          <th>Zip Code</th>
+          <th>Available</th>
+        </tr>
+      </thead>
+      <tr contenteditable="true" class = "changeable">
+        <td>This is the name of the shelter.</td>
+        <td>1234 Main Street Blvd</td>
+        <td>Houston</td>
+        <td>TX</td>
+        <td>12345</td>
+        <td>Yes</td>
+      </tr>
+    </table>
+
+    <div id="modal1" class="modal">
+      <div class="modal-content">
+        <h4 style = "text-align: center;">Input a New Shelter</h4>
+        <form action = "" method = "POST">
+          <div class="">
+            <div class="row">
+              <div class="input-field col s12">
+                <input id="shelter_name" type="text" class="validate" name = "shelter_name">
+                <label for="shelter_name">Name of the Shelter</label>
+              </div>
+              <div class="input-field col s12">
+                <input id="street_name" type="text" class="validate" name = "street_name">
+                <label for="street_name">Street</label>
+              </div>
+              <div class="input-field col s6">
+                <input id="city_name" type="text" class="validate" name = "city_name">
+                <label for="city_name">City</label>
+              </div>
+              <div class="input-field col s6">
+                <input id = "state_name" type = "text" name = "state_name">
+                <label for="state_name">State</label>
+              </div>
+              <div class="input-field col s6">
+                <input id = "zip_code" type = "text" class = "validate" name = "zip_code">
+                <label for = "zip_code">Zip Code</label>
+              </div>
+              <div class="input-field col s6">
+                <input id = "active_shelter" type = "text" class = "validate" name = "active_shelter">
+                <label for="active_shelter">Active Shelter?</label>
+              </div>
+            </div>
+          </div>
+          <button class = "btn-floating" title = "Add a shelter"><i class="material-icons">add</i></button>
+        </form>
+      </div>
+    </div>        
+    <!--Import jQuery before materialize.js-->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="js/materialize.min.js"></script>
+    <script type="text/javascript">
+     /**  JavaScript jQuery Initializations   **/  
+     (function ($) {
+        $(function () {         
+          $('.modal').modal();      
+        });
+      })(jQuery); 
+      $(".button-collapse").sideNav();
+
+      /**  Making Table Fields Change Database Content  **/
+      var editables = document.getElementsByClassName("changeable");
+      for (var i = 0; i < editables.length; i++) {
+        editables[i].addEventListener("input", function(){
+          alert(this.innerHTML);
+        });
+      }
+    </script>
+  </body>
+</html>
