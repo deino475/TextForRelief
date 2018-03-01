@@ -13,7 +13,7 @@ class Hurricane {
 	public function set_data($data) {
 		$this->id = $data['shelter_id'] ?: null;
 		$this->shelter_name = $data['shelter_name'] ?: null;
-		$this->shelter_street = $data['shelter_street'] ?: null;
+		$this->shelter_street = $data['street_name'] ?: null;
 		$this->city_name = $data['city_name'] ?: null;
 		$this->state_name = $data['state_name'] ?: null;
 		$this->zip_code = $data['zip_code'] ?: null;
@@ -38,7 +38,15 @@ class Hurricane {
 	}
 
 	public function update_shelter($conn) {
-		$res = mysqli_query($conn,"UPDATE  shelters SET shelter_name = '$this->shelter_name', street_name = '$this->street_name', city_name = '$this->city_name', state_name = '$this->state_name', zip_code = '$this->zip_code', available = '$this->available', lat = '$this->lat', lng = '$this->lng' WHERE shelter_id = '$this->id' ");
+		$res = mysqli_query($conn,"UPDATE  shelters SET shelter_name = '$this->shelter_name', street_name = '$this->shelter_street', city_name = '$this->city_name', state_name = '$this->state_name', zip_code = '$this->zip_code', available = '$this->available', lat = '$this->lat', lng = '$this->lng' WHERE shelter_id = '$this->id' ");
+		if ($res) {
+			return 1;
+		}
+		return 0;
+	}
+
+	public function delete_shelter($conn) {
+		$res = mysqli_query($conn, "DELETE from shelters WHERE shelter_id = '$this->id' ");
 		if ($res) {
 			return 1;
 		}
