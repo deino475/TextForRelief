@@ -9,6 +9,7 @@
           <th>Available</th>
           <th>Latitude</th>
           <th>Longitude</th>
+          <th>Delete</th>
         </tr>
       </thead>
       <tbody id = "shelter-table">
@@ -32,6 +33,8 @@
             <td><div contenteditable = "true" class = "changeable" id = "' + data_to_add[i]['shelter_id']+':available">' + data_to_add[i]['available'] + '</div></td> \
             <td><div contenteditable = "true" class = "changeable" id = "' + data_to_add[i]['shelter_id']+':lat">' + data_to_add[i]['lat'] + '</div></td> \
             <td><div contenteditable = "true" class = "changeable" id = "' + data_to_add[i]['shelter_id']+':lng">' + data_to_add[i]['lng'] + '</div></td> \
+            <td><form action = "" method = "POST"><input type = "hidden" name = "shelter-id" value = "' + data_to_add[i]['shelter_id']+'">\
+            <button class = "btn" name = "delete-shelter" id = "delete-shelter"><i class = "material-icons left">delete</i></button></form></td>\
             </tr>';
           }
         }
@@ -52,7 +55,7 @@
             var lng_contents = document.getElementById(my_id + ":lng").innerHTML;
 
             /* Update table row */
-            updater.open("POST", "?m=/send", true);
+            updater.open("POST", "?m=/update", true);
             updater.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             updater.send("shelter_id="+my_id+"&shelter_name="+name_contents+"&street_name="+street_contents+"&city_name="+city_contents+"&state_name="+state_contents+"&zip_code="+zip_contents+"&available="+available_contents+"&lat="+lat_contents+"&lng="+lng_contents);
           });
