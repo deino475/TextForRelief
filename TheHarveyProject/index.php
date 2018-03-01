@@ -91,7 +91,6 @@ $app->route('admin', function($data = []) use ($app){
 $app->route('panel', function($data = []) use($app){
 	$database = $app->model('database');
 	$conn = $database->get_connection();
-
 	if (isset($_POST['submit'])) {
 		$shelter_name = mysqli_real_escape_string($conn, 
 			$_POST['shelter_name']);
@@ -116,8 +115,14 @@ $app->route('panel', function($data = []) use($app){
 	$app->renderTemplate("bottom");
 });
 
-$app->route('logout',function($data = []) use($app){
+$app->route('logout',function($data = []) use ($app){
 	
+});
+
+$app->route('twilio',function($data = []) use ($app){
+	$bot = $app->model('Twilio');
+	$resp = $bot->main($_POST['Body']);
+	$app->renderXML($resp);
 });
 
 $app->start();
