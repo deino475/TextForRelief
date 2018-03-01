@@ -30,9 +30,9 @@ $app->route('update', function($data = []) use ($app){
 	$database = $app->model('database');
 	$conn = $database->get_connection();
 	$hurricane = $app->model('hurricane');
-	$hurricane->select($database->get_connection(), mysqli_real_escape_string($conn, $_POST['shelter_id']));
+	$hurricane->select($conn, mysqli_real_escape_string($conn, $_POST['shelter_id']));
 	$hurricane->shelter_name =  mysqli_real_escape_string($conn, $_POST['shelter_name']) ?: $hurricane->shelter_name;
-	$hurricane->shelter_street = mysqli_real_escape_string($conn, $_POST['shelter_street']) ?: $hurricane->shelter_street;
+	$hurricane->shelter_street = mysqli_real_escape_string($conn, $_POST['street_name']) ?: $hurricane->shelter_street;
 	$hurricane->city_name = mysqli_real_escape_string($conn, $_POST['city_name']) ?: $hurricane->city_name;
 	$hurricane->state_name = mysqli_real_escape_string($conn, $_POST['state_name']) ?: $hurricane->state_name;
 	$hurricane->zip_code = mysqli_real_escape_string($conn, $_POST['zip_code']) ?: $hurricane->zip_code;
@@ -42,12 +42,27 @@ $app->route('update', function($data = []) use ($app){
 	$hurricane->update_shelter($conn);
 });
 
+
+#This is an API in order to delete shelters based on the id of the shelter
+$app->route('delete', function($data = []) use ($app){
+	$database = $app->model('database');
+	$conn = $database->get_connection();
+	$hurricane = $app->model('hurricane');
+	$hurricane->select($conn, $_POST['shelter_id']);
+	$hurricane->delete_shelter($conn);
+});
+
 #This is an API in order to get shelters based on nearest one via zip code or shelter id.
 $app->route('get', function($data = []) use ($app){
 	$database = $app->model('database');
 	$xml_editor = $app->model('XML_Editor');
 	if (!isset($data[1])) {
 		$shelters = $database->select("SELECT * FROM shelters ORDER BY id");
+	}
+	elseif (isset($data[1]) && $data[1] == "coords") {
+		$lat = mysqli_query($database->get_connection(),$_POST['lat']);
+		$lng = mysqli_query($database->get_connection(),$_POST['lng']);
+		$shelters = $database->select("SELECT * FROM shelters WHERE available = 'Yes' ORDER BY SQRT(POW(lat - '$lat',2) + POW(lng - '$lng',2)) ASC LIMIT 1");
 	}
 	elseif (isset($data[1]) && strlen($data[1]) == 5) {
 		#SEARCH CODE WILL GO HERE SOON!
@@ -74,9 +89,10 @@ $app->route('admin', function($data = []) use ($app){
 });
 
 $app->route('panel', function($data = []) use($app){
+	$database = $app->model('database');
+	$conn = $database->get_connection();
+
 	if (isset($_POST['submit'])) {
-		$database = $app->model('database');
-		$conn = $database->get_connection();
 		$shelter_name = mysqli_real_escape_string($conn, 
 			$_POST['shelter_name']);
 		$street_name = mysqli_real_escape_string($conn, $_POST['street_name']);
@@ -87,6 +103,11 @@ $app->route('panel', function($data = []) use($app){
 		$latitude = mysqli_real_escape_string($conn, $_POST['latitude']);
 		$longitude = mysqli_real_escape_string($conn, $_POST['longitude']);
 		$resp = $database->insert("INSERT INTO shelters VALUES ('',UUID(),'$shelter_name','$street_name','$city_name','$state_name','$zip_code','$active_shelter','$latitude','$longitude')");
+	}
+	elseif(isset($_POST['delete-shelter'])) {
+		$hurricane = $app->model('hurricane');
+		$hurricane->select($conn, $_POST['shelter-id']);
+		$hurricane->delete_shelter($conn);
 	}
 	$app->renderTemplate("header");
 	$app->renderTemplate("nav");
