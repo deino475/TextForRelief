@@ -1,10 +1,11 @@
 <?php
+include "../inc/config.php";
 class Twilio {
 
-	private $google_maps_api_key = 'GOOGLE_MAPS_API_KEY_GOES_HERE';
+	private $google_maps_api_key = GOOGLE_MAPS_API_KEY;
 
 	public function connect() {
-		return mysqli_connect('host','username','password','database');
+		return mysqli_connect(HOST,USERNAME,PASSWORD,DATABASE);
 	}
 
 	public function search_for_address($text) {
@@ -32,7 +33,7 @@ class Twilio {
 	}
 
 	public function get_closest_org($lat, $lng) {
-		$data = mysqli_query($this->connect(), "SELECT * FROM shelters WHERE available <> 'FALSE' ORDER BY SQRT(POW(lat - '$lat',2) + POW(lng - '$lng',2)) ASC LIMIT 1");
+		$data = mysqli_query($this->connect(), "SELECT * FROM shelters WHERE available = 'Yes' ORDER BY SQRT(POW(lat - '$lat',2) + POW(lng - '$lng',2)) ASC LIMIT 1");
 		return mysqli_fetch_assoc($data);
 	}
 
@@ -43,7 +44,7 @@ class Twilio {
 	public function main($text) {
 		$address = $this->search_for_address($text);
 		if ($address == null) {
-			return 'Just send your zip code, please.';
+			return "<Response><Message>Just send your zip code, please.</Message></Response>";
 		}
 		$coords = $this->get_coords($address);
 		$closest_org = $this->get_closest_org($coords['lat'], $coords['lng']);

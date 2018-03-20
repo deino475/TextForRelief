@@ -1,9 +1,11 @@
 <?php
+include "../inc/config.php";
+
 class Database {
-	private $host = "localhost";
-	private $username = "root";
-	private $password = "";
-	private $database = "hurricane";
+	private $host = HOST;
+	private $username = USERNAME;
+	private $password = PASSWORD;
+	private $database = DATABASE;
 
 	private $connection = null;
 
