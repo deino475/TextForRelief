@@ -2,8 +2,8 @@
 session_start();
 $_SESSION['user_id'] = "1234";
 include 'LilyFramework.php';
+include 'inc/config.php';
 $app = new Lily;
-
 
 #This is the index route for the website.
 $app->route('index', function($data = []) use ($app){
@@ -85,7 +85,10 @@ $app->route('get', function($data = []) use ($app){
 
 #This is the route for acceessing the admin panel
 $app->route('admin', function($data = []) use ($app){
-	$app->renderHTML("<h1>Admin Panel</h1><h2>Manage Users</h2>");
+	$app->renderTemplate("header");
+	$app->renderTemplate("nav");
+	$app->renderTemplate("admin");
+	$app->renderTemplate("bottom");
 });
 
 $app->route('panel', function($data = []) use($app){
@@ -115,14 +118,34 @@ $app->route('panel', function($data = []) use($app){
 	$app->renderTemplate("bottom");
 });
 
+$app->route('login', function($data = []) use ($app){
+	$app->renderTemplate('login');
+});
+
 $app->route('logout',function($data = []) use ($app){
 	
 });
 
 $app->route('twilio',function($data = []) use ($app){
-	$bot = $app->model('Twilio');
-	$resp = $bot->main($_POST['Body']);
-	$app->renderXML($resp);
+	$address = null;
+	$words = explode(" ", $text);
+	for ($i = 0; $i < sizeof($text); $i++) {
+		$word = preg_replace("/[^a-zA-Z 0-9]+/", "", $words[$i]);
+		if (strlen($word) == '5') {
+			if (is_numeric($word)) {
+				$address = $word;
+			}
+		}
+	}
+	$coords = array();
+	$url = 'https://maps.googleapis.com/maps/api/geocode/json?address='.$address.'&key='.GOOGLE_MAPS_API_KEY;
+	$data = json_decode(file_get_contents($url),true);
+	$lat = $data['results'][0]['geometry']['location']['lat'];
+	$lng = $data['results'][0]['geometry']['location']['lng'];
+	$data = mysqli_query($this->connect(), "SELECT * FROM shelters WHERE available = 'Yes' ORDER BY SQRT(POW(lat - '$lat',2) + POW(lng - '$lng',2)) ASC LIMIT 1");
+	$results = mysqli_fetch_assoc($data);
+	$message = "";
+	$app->renderXML($message);
 });
 
 $app->start();
