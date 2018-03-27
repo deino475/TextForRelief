@@ -8,7 +8,7 @@ if (isset($_POST['submit'])) {
 	$google_plus = $_POST['google_plus_api'];
 	$google_maps = $_POST['google_maps_api'];
 	$conn = mysqli_connect($db_host, $db_user, $db_pass, $db_name);
-	$make_table = mysqli_query($conn, "CREATE TABLE IF NOT EXISTS shelters (id int(12), shelter_id varchar(300), shelter_name varchar(300), street_name varchar(300), city_name varchar(300), state_name varchar(300), zip_code varchar(10), available varchar(4), lat float(10,6), lng float(10,6), PRIMARY KEY (id))");
+	$make_table = mysqli_query($conn, "CREATE TABLE IF NOT EXISTS shelters (id int(12) AUTO INCREMENT, shelter_id varchar(300), shelter_name varchar(300), street_name varchar(300), city_name varchar(300), state_name varchar(300), zip_code varchar(10), available varchar(4), lat float(10,6), lng float(10,6), PRIMARY KEY (id))");
 	if ($make_table) {
 		$inc_file = file_get_contents("inc/config.php");
 		$inc_file = str_replace("{{host}}", $db_host, $inc_file);
