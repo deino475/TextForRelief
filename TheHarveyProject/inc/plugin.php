@@ -1,21 +1,22 @@
 <?php
-class Plugin {
-	public $events = array(
-		'before_address_search' => array(),
-		'after_address_search' => array(),
-		'before_get_coords' => array(),
-		'after_get_coords' => array(),
-		'before_get_closest' => array(),
-		'after_get_closest' => array(),
-		'before_return_message' => array(),
-		'after_return_message' => array()
-	);
+$listeners = array(
+	'after_default_pages_load' => array()
+);
 
-	public function create_event($name) {
-		$this->events[$event] = array();
-	}
+function create_event($name) {
+	global $listeners;
+	$listeners[$event] = array();
+}
 
-	public function add_event($event_name, $callback) {
-		array_push($this->events[$event_name], $callback);
+function add_event($event_name, $callback) {
+	global $listeners;
+	array_push($listeners[$event_name], $callback);
+}
+
+function trigger_event($event_name, $data = null) {
+	global $listeners;
+	foreach ($listeners[$event_name] as $func_name) {
+		$data = $func_name($data);
 	}
+	return $data;
 }
