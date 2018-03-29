@@ -3,7 +3,8 @@ session_start();
 $_SESSION['user_id'] = "1234";
 include 'LilyFramework.php';
 include 'inc/config.php';
-$app = new Lily;
+include 'inc/plugin.php';
+$app = new Lily();
 
 #This is the index route for the website.
 $app->route('index', function($data = []) use ($app){
@@ -85,13 +86,42 @@ $app->route('get', function($data = []) use ($app){
 
 #This is the route for acceessing the admin panel
 $app->route('admin', function($data = []) use ($app){
+	$message = null;
+	$database = $app->model('database');
+	$conn = $database->get_connection();
+	if (isset($_POST['submit_user'])) {
+		$user_name = mysqli_real_escape_string($conn, $_POST['user_name']);
+		$email = mysqli_real_escape_string($conn, $_POST['user_email']);
+		$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+	    $charactersLength = strlen($characters);
+	    $randomString = '';
+	    for ($i = 0; $i < 16; $i++) {
+	        $randomString .= $characters[rand(0, $charactersLength - 1)];
+	    }
+		$resp = $database->insert("INSERT INTO users VALUES ('',UUID(),'$user_name','$email','$randomString')");
+	}
+
+	if (isset($_POST['delete-user'])) {
+		$user_id = $_POST['user-id'];
+		$resp = $database->delete("DELETE FROM users WHERE user_id = '$user_id'");
+	}
+	if (isset($_POST['delete-plugin'])) {
+		$plugin_id = $_POST['plugin-id'];
+		$resp = $database->delete("DELETE FROM plugins WHERE plugin_id = '$plugin_id'");
+	}
+	if (isset($_POST['submit_plugin'])) {
+		$plugin_handler = $app->model('PluginHandler');
+		$message = $plugin_handler->upload_file();
+	}
+	$get_users = $database->select("SELECT * FROM users");
+	$get_plugins = $database->select("SELECT * FROM plugins");
 	$app->renderTemplate("header");
 	$app->renderTemplate("nav");
-	$app->renderTemplate("admin");
+	$app->renderTemplate("admin", $data = array('message' => $message, 'users' => $get_users, 'plugins' => $get_plugins));
 	$app->renderTemplate("bottom");
 });
 
-$app->route('panel', function($data = []) use($app){
+$app->route('panel', function($data = []) use ($app){
 	$database = $app->model('database');
 	$conn = $database->get_connection();
 	if (isset($_POST['submit'])) {
@@ -118,18 +148,22 @@ $app->route('panel', function($data = []) use($app){
 	$app->renderTemplate("bottom");
 });
 
+$app->route('plugin-toggle', function($data =[]) use ($app){
+	$database = $app->model('Database');
+	$id = $_POST['id'];
+	$checked_val = $_POST['checked'];
+	$result = $database->update("UPDATE plugins SET active = '$checked_val' WHERE plugin_id = '$id'");
+});
+
 $app->route('login', function($data = []) use ($app){
 	$app->renderTemplate('login');
 });
 
-$app->route('logout',function($data = []) use ($app){
-	
-});
-
 $app->route('twilio',function($data = []) use ($app){
+	$database = $app->model('Database');
 	$address = null;
-	$words = explode(" ", $text);
-	for ($i = 0; $i < sizeof($text); $i++) {
+	$words = explode(" ", $_POST['Body']);
+	for ($i = 0; $i < sizeof($_POST['Body']); $i++) {
 		$word = preg_replace("/[^a-zA-Z 0-9]+/", "", $words[$i]);
 		if (strlen($word) == '5') {
 			if (is_numeric($word)) {
@@ -142,11 +176,12 @@ $app->route('twilio',function($data = []) use ($app){
 	$data = json_decode(file_get_contents($url),true);
 	$lat = $data['results'][0]['geometry']['location']['lat'];
 	$lng = $data['results'][0]['geometry']['location']['lng'];
-	$data = mysqli_query($this->connect(), "SELECT * FROM shelters WHERE available = 'Yes' ORDER BY SQRT(POW(lat - '$lat',2) + POW(lng - '$lng',2)) ASC LIMIT 1");
+	$data = mysqli_query($database->get_connection(), "SELECT * FROM shelters WHERE available = 'Yes' ORDER BY SQRT(POW(lat - '$lat',2) + POW(lng - '$lng',2)) ASC LIMIT 1");
 	$results = mysqli_fetch_assoc($data);
 	$message = "";
 	$app->renderXML($message);
 });
 
+trigger_event('after_default_pages_load', $data = $app);
 $app->start();
 ?>

@@ -10,6 +10,8 @@ if (isset($_POST['submit'])) {
 	$conn = mysqli_connect($db_host, $db_user, $db_pass, $db_name);
 	$make_table = mysqli_query($conn, "CREATE TABLE IF NOT EXISTS shelters (id int(12) AUTO INCREMENT, shelter_id varchar(300), shelter_name varchar(300), street_name varchar(300), city_name varchar(300), state_name varchar(300), zip_code varchar(10), available varchar(4), lat float(10,6), lng float(10,6), PRIMARY KEY (id))");
 	if ($make_table) {
+		$make_plugin_table = mysqli_query($conn, "CREATE TABLE IF NOT EXISTS plugins (id int(12) AUTO INCREMENT, plugin_id text, plugin_name varchar(300), directory text, active int(1), PRIMARY KEY (id))");
+		$make_user_table = mysqli_query($conn, "CREATE TABLE IF NOT EXISTS users (id int(12) AUTO INCREMENT, user_id varchar(200), user_name varchar(100), email varchar(200), password varchar(20), PRIMARY KEY (id))");
 		$inc_file = file_get_contents("inc/config.php");
 		$inc_file = str_replace("{{host}}", $db_host, $inc_file);
 		$inc_file = str_replace("{{username}}", $db_user, $inc_file);
@@ -95,7 +97,18 @@ if (isset($_POST['submit'])) {
           $('.modal').modal();      
         });
       })(jQuery); 
-      /**  Making Table Fields Change Database Content  **/
+      /**  Making Table Fields Change Database Content 
+<a href="#" onclick="signOut();">Sign out</a>
+  function signOut() {
+    var auth2 = gapi.auth2.getAuthInstance();
+    auth2.signOut().then(function () {
+      console.log('User signed out.');
+    });
+  }
+
+
+
+       **/
     </script>
   </body>
 </html>
